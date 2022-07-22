@@ -171,7 +171,7 @@ class Trainer:
             logger.info("[epoch %d]: epoch loss = %f,   acc = %f" % (epoch + 1, epoch_loss / len(batch_gen.list_of_examples),
                                                                float(correct)/total))
 
-    def predict(self, model_dir, results_dir, features_path, vid_list_file, epoch, actions_dict, device, sample_rate):
+    def predict(self, model_dir, results_dir, features_path, vid_list_file, epoch, actions_dict, device):
         self.model.eval()
         with torch.no_grad():
             self.model.to(device)
@@ -200,6 +200,10 @@ class Trainer:
                 
                 input_x.unsqueeze_(0)
                 input_x = input_x.to(device)
+                
+                input_y.unsqueeze_(0)
+                input_y = input_y.to(device)
+                
                 predictions = self.model(input_x)
                 loss = 0
                 for p in predictions:
