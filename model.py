@@ -197,7 +197,7 @@ class Trainer:
                 
                 input_x = torch.tensor(features, dtype=torch.float)
                 input_y = torch.tensor(classes,dtype=torch.long)
-                print(len(classes))
+                
                 input_x.unsqueeze_(0)
                 input_x = input_x.to(device)
                 
@@ -209,9 +209,8 @@ class Trainer:
                 for p in predictions:
                     loss += self.ce(p.transpose(2, 1).contiguous().view(-1, self.num_classes), input_y.view(-1))
                     
-                epoch_loss += loss.item()
-                
-                print(f"Epoch {epoch}, loss = {epoch_loss/features.shape[0]}")
+                            
+                print(f"Epoch {epoch}, loss = {loss}")
                 _, predicted = torch.max(predictions[-1].data, 1)
                 predicted = predicted.squeeze()
                 recognition = []
