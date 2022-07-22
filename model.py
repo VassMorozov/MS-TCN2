@@ -181,7 +181,7 @@ class Trainer:
             file_ptr.close()
             
             epoch_loss = 0
-            lengths = 0
+            
             for vid in list_of_vids:
                 #print vid
                 features = np.load(features_path + vid.split('.')[0] + '.npy')
@@ -226,5 +226,5 @@ class Trainer:
                 f_ptr.write(' '.join(recognition))
                 f_ptr.close()
                 
-            print(f"loss = {epoch_loss / lengths}") 
+            print(f"loss = {epoch_loss / len(list_of_vids)}") 
 
