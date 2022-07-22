@@ -204,7 +204,6 @@ class Trainer:
                 input_y.unsqueeze_(0)
                 input_y = input_y.to(device)
                 
-                mask = torch.zeros(len(classes), self.num_classes, max(length_of_sequences), dtype=torch.float)
                 predictions = self.model(input_x)
                 loss = 0
                 for p in predictions:
