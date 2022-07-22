@@ -180,6 +180,8 @@ class Trainer:
             list_of_vids = file_ptr.read().split('\n')[:-1]
             file_ptr.close()
             
+            epoch_loss = 0
+            lengths = 0
             for vid in list_of_vids:
                 #print vid
                 features = np.load(features_path + vid.split('.')[0] + '.npy')
@@ -194,6 +196,8 @@ class Trainer:
                 
                 classes = classes[::self.sample_rate]
                 features = features[:, ::self.sample_rate]
+                
+                lengths += features.shape[1]
                 
                 input_x = torch.tensor(features, dtype=torch.float)
                 input_y = torch.tensor(classes,dtype=torch.long)
@@ -210,7 +214,7 @@ class Trainer:
                     loss += self.ce(p.transpose(2, 1).contiguous().view(-1, self.num_classes), input_y.view(-1))
                     
                             
-                print(f"Epoch {epoch}, loss = {loss}")
+                epoch_loss += loss
                 _, predicted = torch.max(predictions[-1].data, 1)
                 predicted = predicted.squeeze()
                 recognition = []
@@ -221,4 +225,6 @@ class Trainer:
                 f_ptr.write("### Frame level recognition: ###\n")
                 f_ptr.write(' '.join(recognition))
                 f_ptr.close()
+                
+            print(f"loss = {epoch_loss / lengths}") 
 
