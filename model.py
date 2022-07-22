@@ -126,11 +126,13 @@ class DilatedResidualLayer(nn.Module):
 
 
 class Trainer:
-    def __init__(self, num_layers_PG, num_layers_R, num_R, num_f_maps, dim, num_classes, dataset, split):
+    def __init__(self, num_layers_PG, num_layers_R, num_R, num_f_maps, dim, num_classes, dataset, split, gt_path, actions_dict):
         self.model = MS_TCN2(num_layers_PG, num_layers_R, num_R, num_f_maps, dim, num_classes)
         self.ce = nn.CrossEntropyLoss(ignore_index=-100)
         self.mse = nn.MSELoss(reduction='none')
         self.num_classes = num_classes
+        self.gt_path = gt_path
+        self.actions_dict = actions_dict
 
         logger.add('logs/' + dataset + "_" + split + "_{time}.log")
         logger.add(sys.stdout, colorize=True, format="{message}")
@@ -176,14 +178,36 @@ class Trainer:
             file_ptr = open(vid_list_file, 'r')
             list_of_vids = file_ptr.read().split('\n')[:-1]
             file_ptr.close()
+            
             for vid in list_of_vids:
                 #print vid
                 features = np.load(features_path + vid.split('.')[0] + '.npy')
+                
+                #adding this so that I can have loss for test data
+                file_ptr = open(self.gt_path + vid, 'r')
+                content = file_ptr.read().split('\n')[:-1]
+                classes = np.zeros(min(np.shape(features)[1], len(content)))
+                for i in range(len(classes)):
+                    classes[i] = self.actions_dict[content[i]]
+                   
+                
+                classes = classes[::self.sample_rate]
                 features = features[:, ::sample_rate]
+                
                 input_x = torch.tensor(features, dtype=torch.float)
+                input_y = torch.tensor(classes,dtype=torch.long)
+                
                 input_x.unsqueeze_(0)
                 input_x = input_x.to(device)
                 predictions = self.model(input_x)
+                loss = 0
+                for p in predictions:
+                    loss += self.ce(p.transpose(2, 1).contiguous().view(-1, self.num_classes), input_y.view(-1))
+                    loss += 0.15*torch.mean(torch.clamp(self.mse(F.log_softmax(p[:, :, 1:], dim=1), F.log_softmax(p.detach()[:, :, :-1], dim=1)), min=0, max=16)*mask[:, :, 1:])
+
+                epoch_loss += loss.item()
+                
+                print(f"Epoch {epoch}, loss = {epoch_loss/features.shape[0]}")
                 _, predicted = torch.max(predictions[-1].data, 1)
                 predicted = predicted.squeeze()
                 recognition = []
