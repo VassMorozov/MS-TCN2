@@ -197,7 +197,7 @@ class Trainer:
                 
                 input_x = torch.tensor(features, dtype=torch.float)
                 input_y = torch.tensor(classes,dtype=torch.long)
-                
+                print(len(classes))
                 input_x.unsqueeze_(0)
                 input_x = input_x.to(device)
                 
