@@ -192,7 +192,7 @@ class Trainer:
                    
                 
                 classes = classes[::self.sample_rate]
-                features = features[:, ::sample_rate]
+                features = features[:, ::self.sample_rate]
                 
                 input_x = torch.tensor(features, dtype=torch.float)
                 input_y = torch.tensor(classes,dtype=torch.long)
