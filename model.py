@@ -139,7 +139,7 @@ class Trainer:
         logger.add('logs/' + dataset + "_" + split + "_{time}.log")
         logger.add(sys.stdout, colorize=True, format="{message}")
 
-    def train(self, save_dir, batch_gen, num_epochs, batch_size, learning_rate, device):
+    def train(self, save_dir, batch_gen, num_epochs, batch_size, learning_rate, device, info_every=1):
         self.model.train()
         self.model.to(device)
         optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
@@ -169,9 +169,11 @@ class Trainer:
             batch_gen.reset()
             torch.save(self.model.state_dict(), save_dir + "/epoch-" + str(epoch + 1) + ".model")
             torch.save(optimizer.state_dict(), save_dir + "/epoch-" + str(epoch + 1) + ".opt")
-            logger.info("[epoch %d]: epoch loss = %f,   acc = %f" % (epoch + 1, epoch_loss / len(batch_gen.list_of_examples),
-                                                               float(correct)/total))
             
+            if epoch % info_every == 0:
+                logger.info("[epoch %d]: epoch loss = %f,   acc = %f" % (epoch + 1, epoch_loss / len(batch_gen.list_of_examples),
+                                                                   float(correct)/total))
+                        
             self.train_loss.append(epoch_loss / len(batch_gen.list_of_examples))
 
     def predict(self, model_dir, results_dir, features_path, vid_list_file, epoch, actions_dict, device):
@@ -227,6 +229,5 @@ class Trainer:
                 f_ptr.write(' '.join(recognition))
                 f_ptr.close()
                 
-            print(f"loss = {epoch_loss / len(list_of_vids)}")
             return epoch_loss / len(list_of_vids)
 
