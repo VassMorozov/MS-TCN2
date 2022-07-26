@@ -135,6 +135,7 @@ class Trainer:
         self.actions_dict = actions_dict
         self.sample_rate = sample_rate
         self.train_loss = []
+        self.train_acc = []
 
         logger.add('logs/' + dataset + "_" + split + "_{time}.log")
         logger.add(sys.stdout, colorize=True, format="{message}")
@@ -175,6 +176,7 @@ class Trainer:
                                                                    float(correct)/total))
                         
             self.train_loss.append(epoch_loss / len(batch_gen.list_of_examples))
+            self.train_acc.append(float(correct)/total)
 
     def predict(self, model_dir, results_dir, features_path, vid_list_file, epoch, actions_dict, device):
         self.model.eval()
@@ -219,6 +221,9 @@ class Trainer:
                             
                 epoch_loss += loss
                 _, predicted = torch.max(predictions[-1].data, 1)
+                
+                acc = (predicted == input_y).sum() / len(list_of_vids)
+                
                 predicted = predicted.squeeze()
                 recognition = []
                 for i in range(len(predicted)):
@@ -229,5 +234,5 @@ class Trainer:
                 f_ptr.write(' '.join(recognition))
                 f_ptr.close()
                 
-            return epoch_loss / len(list_of_vids)
+            return epoch_loss / len(list_of_vids), acc
 
