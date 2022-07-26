@@ -224,7 +224,8 @@ class Trainer:
                 _, predicted = torch.max(predictions[-1].data, 1)
                 
                 correct += (predicted == input_y).sum()
-                total += input_y.size()[0]
+                print(input_y.size())
+                total += input_y.size()[1]
                 
                 predicted = predicted.squeeze()
                 recognition = []
