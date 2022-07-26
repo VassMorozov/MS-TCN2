@@ -188,7 +188,8 @@ class Trainer:
             file_ptr.close()
             
             epoch_loss = 0
-            
+            total = 0
+            correct = 0
             for vid in list_of_vids:
                 #print vid
                 features = np.load(features_path + vid.split('.')[0] + '.npy')
@@ -222,7 +223,8 @@ class Trainer:
                 epoch_loss += loss
                 _, predicted = torch.max(predictions[-1].data, 1)
                 
-                acc = (predicted == input_y).sum() / len(list_of_vids)
+                correct += (predicted == input_y).sum()
+                total += input_y.size[0]
                 
                 predicted = predicted.squeeze()
                 recognition = []
@@ -234,5 +236,5 @@ class Trainer:
                 f_ptr.write(' '.join(recognition))
                 f_ptr.close()
                 
-            return epoch_loss / len(list_of_vids), acc
+            return epoch_loss / len(list_of_vids), correct / total
 
