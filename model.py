@@ -221,7 +221,7 @@ class Trainer:
                 loss = 0
                 for p in predictions:
                     loss += self.ce(p.transpose(2, 1).contiguous().view(-1, self.num_classes), input_y.view(-1))
-                    loss += self.loss_cont*torch.mean(torch.clamp(self.mse(F.log_softmax(p[:, :, 1:], dim=1), F.log_softmax(p.detach()[:, :, :-1], dim=1)), min=0, max=16)*mask[:, :, 1:])
+                    loss += self.loss_cont*torch.mean(torch.clamp(self.mse(F.log_softmax(p[:, :, 1:], dim=1), F.log_softmax(p.detach()[:, :, :-1], dim=1)), min=0, max=16))
                             
                 epoch_loss += loss
                 _, predicted = torch.max(predictions[-1].data, 1)
