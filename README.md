@@ -2,6 +2,8 @@
 
 This repository provides a PyTorch implementation of the paper [MS-TCN++: Multi-Stage Temporal Convolutional Network for Action Segmentation](https://arxiv.org/pdf/2006.09220.pdf).
 
+2022 edits include the outputting of performance metrics for both training and validation samples for experimental design and hyperparameter exploration.
+
 ## Environment
 Python3, pytorch
 
